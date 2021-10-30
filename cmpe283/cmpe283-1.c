@@ -15,7 +15,7 @@
 #define IA32_VMX_PROCBASED_CTLS	0x482
 #define IA32_VMX_PROCBASED_CTLS2	0x48B
 #define IA32_VMX_EXIT_CTLS		0x483
-#define IA32_VMX_ENRRY_CTLS		0x484
+#define IA32_VMX_ENTRY_CTLS		0x484
 
 /*
  * struct caapability_info
@@ -130,6 +130,26 @@ struct capability_info vmexit[14] =
 };
 
 /*
+ * VM Entry controls
+ * See SDM volume 3, section 23.8.1
+ */
+struct capability_info vmentry[12] =
+{
+	{ 2, "Load debug controls" },
+	{ 9, "IA-32e mode guest" },
+	{ 10, "Entry to SMM" },
+	{ 11, "Deactivate dual-monitor treatment" },
+	{ 13, "Load IA32_PERF_GLOBAL_CTRL" },
+	{ 14, "Load IA32_PAT" },
+	{ 15, "Load IA32_EFER" },
+	{ 16, "Load IA32_BNDCFGS" },
+	{ 17, "Conceal VMX from PT" },
+	{ 18, "Load IA32_RTIT_CTL" },
+	{ 20, "Load CET state" },
+	{ 22, "Load PKRS" }
+};
+
+/*
  * report_capability
  *
  * Reports capabilities present in 'cap' using the corresponding MSR values
@@ -192,10 +212,16 @@ detect_vmx_features(void)
 	report_capability(procbased2, NELEMS(procbased2), lo, hi);
 
 	/* VM-Exit controls */
-	rdmsr(IA32_VMX_PROCBASED_CTLS2, lo, hi);
+	rdmsr(IA32_VMX_EXIT_CTLS, lo, hi);
 	pr_info("VM-Exit Controls MSR: 0x%llx\n",
 		(uint64_t)(lo | (uint64_t)hi << 32));
 	report_capability(vmexit, NELEMS(vmexit), lo, hi);
+
+	/* VM-Entry controls */
+	rdmsr(IA32_VMX_ENTRY_CTLS, lo, hi);
+	pr_info("VM-Entry Controls MSR: 0x%llx\n",
+		(uint64_t)(lo | (uint64_t)hi << 32));
+	report_capability(vmentry, NELEMS(vmentry), lo, hi);
 }
 
 /*
