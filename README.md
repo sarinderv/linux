@@ -1,3 +1,5 @@
+Note: I did this assignment by myself (no partners).
+
 Here are the steps I followed for this assignment:
 
 # Part A
@@ -20,7 +22,7 @@ At step 7 above, I ran into an issue which turned out was caused by step 5 not c
 Build and run the module that gathers processor capabilities:
 
 0. create a `cmpe283` directory under `~/linux` and copy the Professor's `Makefile` and `cmpe283-1.c`
-1. 1. Append a license info at the end of `cmpe283-1.c`
+1. Append a license info at the end of `cmpe283-1.c`
 2. Fill out the rest of the VMX field checks in `cmpe283-1.c`
 3. `make`
 4. `sudo insmod cmpe283-1.ko` - install the module
