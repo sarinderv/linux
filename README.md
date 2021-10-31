@@ -1,6 +1,7 @@
 Here are the steps I followed for this assignment:
 
-Part A - build and install new kernel version
+# Part A
+Build and install new kernel version:
 
 0. Forke the torvalds/linux Github repo into my own account, clone it locally into `~/linux`, and cd into that new directory.
 1. `uname -a` - gives the current running linux version
@@ -13,19 +14,20 @@ Part A - build and install new kernel version
 8. `sudo make install` - installs the kernel
 9. `sudo reboot`
 
-At step 7 I ran into an issue which turned out was caused by step 5 not completing properly. By default, the make config was trying to sign the kernel modules with a Canonical private key, which obviously I don't have. The fix was to manually set `CONFIG_SYSTEM_TRUSTED_KEYS=""` in the .config file (see https://askubuntu.com/a/1329625 and https://wiki.archlinux.org/title/Signed_kernel_modules#Kernel_configuration for more details).
+At step 7 above, I ran into an issue which turned out was caused by step 5 not completing properly. By default, the make config was trying to sign the kernel modules with a Canonical private key, which obviously I don't have. The fix was to manually set `CONFIG_SYSTEM_TRUSTED_KEYS=""` in the .config file (see https://askubuntu.com/a/1329625 and https://wiki.archlinux.org/title/Signed_kernel_modules#Kernel_configuration for more details). This will cause a default (e.g. self-signed) cert to be used for signing. It appears to be the cause of the *module verification failed* warning message in the dmesg output below, but does not appear to cause any functional issues.
 
-Part B - 
+# Part B
+Build and run the module that gathers processor capabilities:
 
-0. create a `cmpe283` directory under `~/linux` and copy the Professor's Makefile and .c file
-1. Append a license info at the end of the .c file
-2. Fill out the rest of the VMX field checks in the .c file
+0. create a `cmpe283` directory under `~/linux` and copy the Professor's `Makefile` and `cmpe283-1.c`
+1. 1. Append a license info at the end of `cmpe283-1.c`
+2. Fill out the rest of the VMX field checks in `cmpe283-1.c`
 3. `make`
-4. `sudo installmod` - install the module
-5. `sudo removemod` - remove the module
+4. `sudo insmod cmpe283-1.ko` - install the module
+5. `sudo rmmod cmpe283-1` - remove the module
 6. `dmesg` - obtain the output of the `printk` lines
 
-I ended up adding a new make directive `showmod` with lines 3,4,5 above since I had to run those repeatedly during development.
+I ended up adding a new make target `showmod` automating lines 4,5,6 above since I had to run those repeatedly during development.
 
 Below is the final output of `dmesg`:
 
