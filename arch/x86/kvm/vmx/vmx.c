@@ -5894,6 +5894,12 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	union vmx_exit_reason exit_reason = vmx->exit_reason;
 	u32 vectoring_info = vmx->idt_vectoring_info;
 	u16 exit_handler_index;
+	
+	// access global vars from cpuid.c
+	extern u32 total_exits; 
+	extern u64 total_time;
+	// CMPE 281 Assignments 2&3
+	u64 curr_time = rdtsc();
 
 	/*
 	 * Flush logged GPAs PML buffer, this will make dirty_bitmap more
@@ -6035,7 +6041,15 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	if (!kvm_vmx_exit_handlers[exit_handler_index])
 		goto unexpected_vmexit;
 
-	return kvm_vmx_exit_handlers[exit_handler_index](vcpu);
+	// CMPE 281 Assignments 2&3
+	{
+		int exit_code = kvm_vmx_exit_handlers[exit_handler_index](vcpu);
+		
+		total_exits++;
+		total_time += rdtsc() - curr_time;
+		
+		return exit_code;
+	}
 
 unexpected_vmexit:
 	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n",
