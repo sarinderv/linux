@@ -20,6 +20,9 @@ Build and run a VM:
 
 Below is the final output of `cpuid` instructions in the VM.
 
+Screenshot of "first leaf", showing total_exits in eax:
+![Screenshot from 2021-11-20 11-01-36](https://user-images.githubusercontent.com/4393945/142738150-3514b008-37f0-40bc-afa7-2242eae16a3a.png)
+
 Screenshot of "second leaf", showing total_time in ebx/ecx:
 ![Screenshot from 2021-11-20 10-55-14](https://user-images.githubusercontent.com/4393945/142737998-1153d67a-260f-41f3-bf9f-fa2ccba80148.png)
 
