@@ -18,8 +18,8 @@ Build and run a VM:
 2. login to the VM and install the `cpuid` package (`sudo apt install cpuid`)
 3. excute `cpuid` with the two different leaf values (see output below)
 
-Below is the final output of `cpuid` instructions in the VM:
+Below is the final output of `cpuid` instructions in the VM.
 
-```console
-<TBD>
-```
+Screenshot of "second leaf", showing total_time in ebx/ecx:
+![Screenshot from 2021-11-20 10-55-14](https://user-images.githubusercontent.com/4393945/142737998-1153d67a-260f-41f3-bf9f-fa2ccba80148.png)
+
