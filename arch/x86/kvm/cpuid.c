@@ -1228,22 +1228,57 @@ u64 total_time;
 EXPORT_SYMBOL(total_exits);
 EXPORT_SYMBOL(total_time);
 
+// create an array of exit reasons
+typedef struct reason_map {
+	int code;
+	const char *name;
+} reason_map;
+const reason_map exit_reasons[] = { VMX_EXIT_REASONS };
+const int exit_reasons_length = sizeof exit_reasons / sizeof exit_reasons[0];
+int valid_exit_reason(int ecx) {
+	int i;
+	for (i = 0; i < exit_reasons_length; i++)
+		if (exit_reasons[i].code == ecx)
+			return 1;
+	return 0;
+}
 int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 {
 	u32 eax, ebx, ecx, edx;
-
+	
 	if (cpuid_fault_enabled(vcpu) && !kvm_require_cpl(vcpu, 0))
 		return 1;
 
 	eax = kvm_rax_read(vcpu);
 	ecx = kvm_rcx_read(vcpu);
 
+	// Report back additional information when special CPUID leaf nodes are requested.
+	// For leaf nodes 0x4FFFFFFD and 0x4FFFFFFC, if %ecx (on input) contains a value not defined by the SDM,
+	// return 0 in all %eax, %ebx, %ecx registers and return 0xFFFFFFFF in %edx
 	if (eax == 0x4fffffff) {
 		eax = total_exits;
 	}
 	else if (eax == 0x4ffffffe) {
 		ebx = (u32)(total_time>>32);
 		ecx = (u32)total_time;
+	}
+	else if (eax == 0x4ffffffd) {
+		if (valid_exit_reason(ecx))
+			eax = total_exits;
+		else {
+			eax = ebx = ecx = 0;
+			edx = 0xffffffff;
+		}
+	}
+	else if (eax == 0x4ffffffc) {
+		if (valid_exit_reason(ecx)) {
+			ebx = (u32)(total_time>>32);
+			ecx = (u32)total_time;
+		}
+		else {
+			eax = ebx = ecx = 0;
+			edx = 0xffffffff;
+		}
 	}
 	else {
 		kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
@@ -1256,3 +1291,4 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 	return kvm_skip_emulated_instruction(vcpu);
 }
 EXPORT_SYMBOL_GPL(kvm_emulate_cpuid);
+
