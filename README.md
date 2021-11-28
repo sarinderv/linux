@@ -46,3 +46,5 @@ Many exit types did not occur at all (zero exit frequency).
 Here is a graph depicting the frequency of Exit Types over the period of about 1 hour in the VM:
 
 ![image](https://user-images.githubusercontent.com/4393945/143732539-90c4c08b-a6c0-40a8-bc6c-e721c57f5aef.png)
+
+Note: to allow comparision of the wide range of exit frequencies, the axis is logarithmic, so the slope of the lines is muted.
