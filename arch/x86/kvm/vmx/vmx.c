@@ -5896,8 +5896,10 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	u16 exit_handler_index;
 	
 	// access global vars from cpuid.c
-	extern u32 total_exits; 
+	extern u32 total_exits;
+	extern u32 count_exits[];
 	extern u64 total_time;
+	extern u64 count_time[];
 	// CMPE 281 Assignments 2&3
 	u64 curr_time = rdtsc();
 
@@ -6044,9 +6046,15 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	// CMPE 281 Assignments 2&3
 	{
 		int exit_code = kvm_vmx_exit_handlers[exit_handler_index](vcpu);
+		int time = rdtsc() - curr_time;
+		reason r = get_reason(exit_reason.basic);
 		
 		total_exits++;
-		total_time += rdtsc() - curr_time;
+		total_time += time;
+		if (r.code > -1) {
+			count_exits[r.code]++;
+			count_time[r.code] += time;
+		}
 		
 		return exit_code;
 	}

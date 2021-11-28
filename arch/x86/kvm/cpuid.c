@@ -1222,26 +1222,29 @@ bool kvm_cpuid(struct kvm_vcpu *vcpu, u32 *eax, u32 *ebx,
 }
 EXPORT_SYMBOL_GPL(kvm_cpuid);
 
-// global vars for CMPE281 Assignment 2/3
-u32 total_exits;
-u64 total_time;
-EXPORT_SYMBOL(total_exits);
-EXPORT_SYMBOL(total_time);
-
-// create an array of exit reasons
-typedef struct reason_map {
-	int code;
-	const char *name;
-} reason_map;
-const reason_map exit_reasons[] = { VMX_EXIT_REASONS };
+// create an array of exit reasons and accumulators for total exits and clock cycles (i.e. time) 
+reason exit_reasons[] = { VMX_EXIT_REASONS };
+const reason not_found = { -1, NULL };
 const int exit_reasons_length = sizeof exit_reasons / sizeof exit_reasons[0];
-int valid_exit_reason(int ecx) {
+reason get_reason(int ecx) {
 	int i;
 	for (i = 0; i < exit_reasons_length; i++)
 		if (exit_reasons[i].code == ecx)
-			return 1;
-	return 0;
+			return exit_reasons[i];
+	return not_found;
 }
+
+// global vars for CMPE281 Assignment 2/3
+u32 total_exits;
+u32 count_exits[MAX_EXIT_REASONS];
+u64 total_time;
+u64 count_time[MAX_EXIT_REASONS];
+EXPORT_SYMBOL(total_exits);
+EXPORT_SYMBOL(count_exits);
+EXPORT_SYMBOL(total_time);
+EXPORT_SYMBOL(count_time);
+EXPORT_SYMBOL(get_reason);
+
 int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 {
 	u32 eax, ebx, ecx, edx;
@@ -1263,21 +1266,24 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 		ecx = (u32)total_time;
 	}
 	else if (eax == 0x4ffffffd) {
-		if (valid_exit_reason(ecx))
-			eax = total_exits;
-		else {
+		reason r = get_reason(ecx);
+		if (r.code < 0 || r.code > MAX_EXIT_REASONS) {
 			eax = ebx = ecx = 0;
 			edx = 0xffffffff;
+		}
+		else {
+			eax = count_exits[r.code];
 		}
 	}
 	else if (eax == 0x4ffffffc) {
-		if (valid_exit_reason(ecx)) {
-			ebx = (u32)(total_time>>32);
-			ecx = (u32)total_time;
-		}
-		else {
+		reason r = get_reason(ecx);
+		if (r.code < 0 || r.code > MAX_EXIT_REASONS) {
 			eax = ebx = ecx = 0;
 			edx = 0xffffffff;
+		}
+		else {
+			ebx = (u32)(count_time[r.code]>>32);
+			ecx = (u32)count_time[r.code];
 		}
 	}
 	else {

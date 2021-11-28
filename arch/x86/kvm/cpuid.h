@@ -8,6 +8,17 @@
 #include <asm/processor.h>
 #include <uapi/asm/kvm_para.h>
 
+typedef struct reason_map {
+	int code;
+	const char *name;
+	u32 total_exits;
+	u64 total_time;
+} reason;
+
+reason get_reason(int ecx);
+#define MAX_EXIT_REASONS	EXIT_REASON_BUS_LOCK
+
+
 extern u32 kvm_cpu_caps[NR_KVM_CPU_CAPS] __read_mostly;
 void kvm_set_cpu_caps(void);
 
