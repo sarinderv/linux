@@ -32,7 +32,7 @@ For *CPUID 0x4FFFFFFD* and *0x4FFFFFFC*:
 
 3. The frequency of exits definately increases at a higher rate when the VM is "doing work". For example, the following chart shows the number of exits (polled every second) during a period of a few minutes: ![image](https://user-images.githubusercontent.com/4393945/143732351-48355754-729d-4b3c-a7dc-647753096e81.png)
 
-A full boot entails __approximately 1 million exits__.
+A full boot entails __approximately 1.2 million exits__.
 
 4. The most frequent exit types (that are actually defined in the SDM) are:
 - __EPT Violation__ (code 48): I believe these are caused by VM nested page faults
